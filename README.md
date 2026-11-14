@@ -1,80 +1,99 @@
 # Express + TypeScript Template
 
-![Node.js](https://img.shields.io/badge/Node.js-20+-339933?style=flat&logo=node.js&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-26.x-339933?style=flat&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-5.x-000000?style=flat&logo=express&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat&logo=typescript&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.x-3178C6?style=flat&logo=typescript&logoColor=white)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
 
-A minimal and modern starter template for building production-ready Express APIs using TypeScript and native ECMAScript Modules (ESM).
-
-## Features
-
-- **Express 5**: Native async error handling with decoupled application setup for easy testing.
-- **TypeScript & ESM**: Strict type checking with `NodeNext` resolution and fast development reloads via `tsx`.
-- **Native Environment Variables**: Zero extra dependencies, powered by Node.js built-in `--env-file` flag.
-- **Runtime Validation**: Request payload parsing and validation with Zod.
-- **Security Essentials**: Secure HTTP headers via Helmet, configurable CORS, and rate limiting with `express-rate-limit`.
-- **Response Compression**: Gzip/Brotli payload compression with `compression`.
-- **Structured Logging**: High-performance JSON logging with Pino and `pino-http`.
-- **Testing Setup**: Fast in-memory integration testing using Vitest and Supertest.
-- **Git Hooks**: Pre-commit linting and testing with Husky, plus commit message validation via Commitlint.
+A starting point for Express APIs with TypeScript, Zod validation, Pino logging,
+and integration tests. Includes CORS, security headers, compression, and rate limiting.
 
 ## Requirements
 
-- Node.js >= 20.6.0 (required for native `--env-file` support).
+- Node.js 26.x is recommended for this setup and is configured in CI.
+- npm.
 
-## Getting Started
+## Installation
 
-1. Install dependencies:
+From the repository root:
+
 ```bash
-npm install
+npm ci
 ```
 
-2. Set up your local environment file:
+For custom settings, create a local `.env` using [.env.example](.env.example) as a
+reference. Otherwise, the server uses the defaults listed below.
+
+## Usage
+
+Start the development server with automatic reload:
+
 ```bash
-cp .env.example .env
+npm run dev
 ```
 
-## Environment Variables
+With the server running, check its health from another terminal:
 
-| Variable | Description | Default |
-|---|---|---|
-| `PORT` | Port number the server listens on | `8080` |
-| `CORS_ORIGIN` | Allowed CORS origins (comma-separated for multiples) | `http://localhost:3000` |
-| `LOG_LEVEL` | Pino log level (`info`, `debug`, `error`, etc.) | `info` |
-
-## Available Scripts
-
-- `npm run dev`: Starts the local development server with watch mode (`tsx`).
-- `npm run build`: Compiles TypeScript files into the `dist/` directory.
-- `npm start`: Runs the compiled production server.
-- `npm test`: Runs automated test suites using Vitest.
-- `npm run lint`: Checks code quality with ESLint.
-- `npm run format`: Formats code files using Prettier.
-- `npm run prepare`: Initializes Husky Git hooks.
-
-## Project Structure
-
-```text
-src/
-├── app/                  # Route definitions and handlers
-│   ├── app.route.ts
-│   └── health.route.ts
-├── configs/              # Server, CORS, logger, and response configurations
-│   ├── configs.ts
-│   ├── logger.ts
-│   └── response.format.ts
-├── handlers/             # Global error and 404 middlewares
-│   ├── error.handler.ts
-│   └── not-found.handler.ts
-├── app.ts                # Express application configuration and middlewares
-└── main.ts               # HTTP server entry point and port listener
-tests/                    # Automated integration tests
-├── app.test.ts
-└── health.test.ts
+```bash
+curl http://localhost:8080/api/health
 ```
+
+The response includes `success`, a message, and server uptime in `data.uptime`.
+These examples use the default port, `8080`.
+
+| Method | Route | Purpose |
+| --- | --- | --- |
+| GET | `/api/health` | Server status and uptime. |
+| GET | `/api/app` | A greeting. |
+| POST | `/api/app` | A greeting using a nonempty JSON `name`. |
+
+Try the validated request:
+
+```bash
+curl -X POST http://localhost:8080/api/app \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Developer"}'
+```
+
+To compile to `dist/` and run the compiled application:
+
+```bash
+npm run build:prod
+npm start
+```
+
+## Configuration
+
+The development and start scripts load `.env` when present.
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `PORT` | HTTP port. | `8080` |
+| `CORS_ORIGIN` | Allowed origins, comma-separated. | `http://localhost:3000` |
+| `LOG_LEVEL` | Pino logging level. | `info`; `silent` when `NODE_ENV=test` |
+
+The rate limit is 100 requests per 15-minute window. Its settings are defined in
+[src/configs/configs.ts](src/configs/configs.ts).
+
+## Development
+
+| Command | Purpose |
+| --- | --- |
+| `npm run build:check` | Check types without emitting files. |
+| `npm run lint` | Run ESLint. |
+| `npm test` | Run Vitest tests. |
+| `npm run format` | Rewrite TypeScript files in `src/` and `tests/` with Prettier. |
+| `npm run prepare` | Set up Husky Git hooks; also runs during installation. |
+
+Application code is in [src/](src/), routes in [src/app/](src/app/), and integration
+tests in [tests/](tests/).
+
+Pre-commit hooks lint and format staged TypeScript files, then run tests.
+Commit messages are checked with Commitlint's Conventional Commits preset.
+
+The [CI workflow](.github/workflows/ci.yaml) runs lint, type checks, and tests on
+pull requests targeting `main`, with a manual trigger also available.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
+[MIT](LICENSE).
