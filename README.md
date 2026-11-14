@@ -82,6 +82,7 @@ The rate limit is 100 requests per 15-minute window. Its settings are defined in
 | `npm run build:check` | Check types without emitting files. |
 | `npm run lint` | Run ESLint. |
 | `npm test` | Run Vitest tests. |
+| `npm run test:cov` | Run Vitest tests with coverage. |
 | `npm run format` | Rewrite TypeScript files in `src/` and `tests/` with Prettier. |
 | `npm run prepare` | Set up Husky Git hooks; also runs during installation. |
 
